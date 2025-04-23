@@ -185,6 +185,12 @@
 		    <version>3.3.2</version>
 		</dependency>
 		
+		<dependency>
+		    <groupId>kr.or.kobis</groupId>
+		    <artifactId>kobis-openapi-rest</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+		
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
