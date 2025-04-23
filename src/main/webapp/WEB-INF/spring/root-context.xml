@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- DB연결하기 위한 기본 설정해주는 빈 -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+	   <property name="driverClassName" value="org.mariadb.jdbc.Driver" />
+	   <property name="jdbcUrl" value="jdbc:mariadb://localhost:3306/movie_db" />
+	   <property name="username" value="root" />
+	   <property name="password" value="csb1234" />
+	</bean>
+	<!-- hikariConfig를 설정된 값을 토대로 DB에 연결된 bean얻어옴 -->
+	<bean id="ds" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref="hikariConfig"/>
+	</bean>
+	<!-- 데이터소스 마이바티스에 등록 및 xml 위치 설정 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	   <property name="dataSource" ref="ds"/>
+	   <property name="mapperLocations" value="classpath:/mappers/*Mapper.xml"/>
+	   <property name="typeAliasesPackage" value="com.project.movie.member.DTO, com.project.movie.boxOffice.DTO, com.project.movie.booking.DTO, com.project.movie.community.DTO" />
+	</bean>
+	
+	<mybatis-spring:scan base-package="com.project.movie.member.Mybatis" />
+	<mybatis-spring:scan base-package="com.project.movie.boxOffice.Mybatis" />
+	<mybatis-spring:scan base-package="com.project.movie.booking.Mybatis" />
+	<mybatis-spring:scan base-package="com.project.movie.community.Mybatis" />
+</beans>

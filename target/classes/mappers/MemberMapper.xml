@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.movie.member.Mybatis.MemberMapper">
+	<resultMap type="com.project.movie.member.DTO.MemberDTO" id="member">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="mobile" column="mobile" />
+		<result property="pwd" column="pwd" />
+		<result property="email" column="email" />
+		<result property="addr1" column="addr1" />
+		<result property="addr2" column="addr2" />
+		<result property="addr3" column="addr3" />
+		<result property="memberId" column="memberId" />
+		<result property="kakaoId" column="kakao_id" />
+		<result property="isKakao" column="is_kakao" />
+	</resultMap>
+	
+	<!-- 로그인 확인 -->
+	<select id="login_chk" resultMap="member">
+		SELECT * FROM members WHERE id=#{id}
+	</select>
+	
+	<!-- 로그인 상태 저장 -->
+	<update id="keepLogin">
+		UPDATE members SET session_id=#{sessionId} WHERE id=#{id}
+	</update>
+	
+	<!-- id 중복확인 -->
+	<select id="idCheck" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM members WHERE id = #{id}
+	</select>
+	
+	<!-- 회원가입 처리 -->
+	<insert id="register">
+		insert into members(name, mobile, id, pwd, email, addr1, addr2, addr3)
+		values(#{name}, #{mobile}, #{id}, #{pwd}, #{email}, #{addr1}, #{addr2}, #{addr3})
+	</insert>
+	
+	<!-- 회원정보 수정 -->
+	<update id="updateMemberInfo" parameterType="MemberDTO">
+		UPDATE members
+		SET mobile = #{mobile}, email = #{email}, addr1 = #{addr1}, addr2 = #{addr2}, addr3 = #{addr3}
+		WHERE memberId = #{memberId}
+	</update>
+	
+	<!-- id를 통해 memberId를 가져오는 쿼리 -->
+	<select id="getMemberIdById" resultType="Integer">
+		SELECT memberId
+		FROM members
+		WHERE id = #{id}
+	</select>
+	
+	<!-- 회원정보 가져오는 쿼리 -->
+	<select id="getMemberInfo" resultMap="member">
+		SELECT *
+		FROM members
+		WHERE memberId = #{memberId}
+	</select>
+	
+	<!-- kakaoId로 회원정보 찾는 쿼리 -->
+	<select id="findByKakaoId" resultMap="member">
+		SELECT *
+		FROM members
+		WHERE kakao_id = #{kakaoId}
+	</select>
+	
+	<!-- 카카오 회원가입 처리 -->
+	<insert id="kakaoRegister">
+		INSERT INTO members (id, kakao_id, name, mobile, email, is_kakao)
+    	VALUES (#{kakaoId}, #{kakaoId}, #{name}, #{mobile}, #{email}, 1)
+	</insert>
+	
+	<delete id="deleteMember">
+		DELETE FROM members
+		WHERE memberId = #{memberId}
+	</delete>
+</mapper>

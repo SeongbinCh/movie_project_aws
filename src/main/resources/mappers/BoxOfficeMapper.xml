@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.project.movie.boxOffice.Mybatis.BoxOfficeMapper">
+	<resultMap type="com.project.movie.boxOffice.DTO.BoxOfficeDTO" id="boxOffice">
+		<id property="movieId" column="movieId" />
+		<result property="movieCd" column="movieCd" />
+		<result property="movieName" column="movieName"/>
+		<result property="movieShowDate" column="movieShowDate"/>
+		<result property="movieShowTime" column="movieShowTime"/>
+	</resultMap>
+
+	<!-- 영화 등록 -->
+	<insert id="insertMovie">
+		INSERT INTO movie(movieName, movieCd) VALUES(#{movieName}, #{movieCd})
+	</insert>
+	
+	<!-- 상영시간 등록 -->
+	<insert id="insertShowTime">
+		INSERT INTO movie_showtime(movieId, movieCd, movieShowDate, movieShowTime) 
+		SELECT #{movieId}, #{movieCd}, #{movieShowDate}, #{movieShowTime}
+		FROM dual
+		WHERE not exists (
+			SELECT 1 from movie_showtime
+			WHERE movieId = #{movieId} 
+			AND movieShowDate = #{movieShowDate}
+			AND movieShowTime = #{movieShowTime}
+		)
+	</insert>
+	
+	<!-- movieName으로 movieId를 가져오는 쿼리 -->
+	<select id="getMovieIdByName" parameterType="map" resultType="Integer">
+		SELECT movieId FROM movie WHERE movieName = #{movieName}
+	</select>
+	
+	<!-- 상영시간 가져오는 쿼리 -->
+	<select id="getMovieShowTimes" resultType="map">
+		SELECT showtimeId, movieShowTime
+		FROM movie_showtime
+		WHERE movieId = #{movieId}
+		AND movieShowDate = STR_To_Date(#{date}, '%Y-%m-%d')
+	</select>
+</mapper>

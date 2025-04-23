@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.movie.community.Mybatis.CommunityMapper">
+	<resultMap type="com.project.movie.community.DTO.ReviewBoardDTO" id="review">
+		<result property="review_no" column="review_no" />
+		<result property="category" column="category" />
+		<result property="id" column="id" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="review_date" column="review_date" />
+		<result property="review_time" column="review_time" />
+		<result property="hit" column="hit" />
+	</resultMap>
+	
+	<resultMap type="com.project.movie.community.DTO.ReviewRepDTO" id="reply">
+		<result property="reply_no" column="reply_no"></result>
+		<result property="parent_reply_no" column="parent_reply_no"></result>
+		<result property="write_group" column="write_group"></result>
+		<result property="depth" column="depth"></result>
+		<result property="order_no" column="order_no"></result>
+		<result property="review_no" column="review_no"></result>
+		<result property="memberId" column="memberId"></result>
+		<result property="id" column="id"></result>
+		<result property="content" column="content"></result>
+		<result property="reply_date" column="reply_date"></result>
+		<result property="reply_time" column="reply_time"></result>
+	</resultMap>
+	
+	<!-- 게시글 관련 쿼리 -->
+	<select id="reviewBoardList" resultMap="review">
+		SELECT *
+		FROM review_board
+		ORDER BY review_no DESC
+		LIMIT #{s}, #{e}
+	</select>
+	
+	<!-- 게시글 갯수 가져오기 -->
+	<select id="selectReviewBoardCount" resultType="Integer">
+		select count(*) from review_board
+	</select>
+	
+	<!-- 게시글 작성 -->
+	<insert id="writeReviewBoard">
+		INSERT INTO review_board(memberId, category, id, title, content)
+		VALUES ((SELECT memberId FROM members WHERE id = #{id}), #{category}, #{id}, #{title}, #{content})
+	</insert>
+	
+	<!-- 게시글 내용 가져오기 -->
+	<select id="getReviewContent" resultMap="review">
+		SELECT * 
+		FROM review_board
+		WHERE review_no = #{review_no}
+	</select>
+	
+	<!-- 게시글 조회수 올리기 -->
+	<update id="upReviewHit">
+		UPDATE review_board 
+		SET hit = hit + 1 
+		WHERE review_no = #{review_no}
+	</update>
+	
+	<!-- 게시글 수정 -->
+	<update id="reviewModify">
+		UPDATE review_board
+		SET title=#{title}, content=#{content}
+		WHERE review_no = #{review_no}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="reviewDelete">
+		DELETE FROM review_board
+		WHERE review_no = #{review_no}
+	</delete>
+	
+	<delete id="deleteReview">
+		DELETE FROM review_board
+		WHERE memberId = #{memberId}
+	</delete>
+	
+	<!--  -->
+	<select id="getUserPosts" resultMap="review">
+		SELECT *
+		FROM review_board
+		WHERE memberId = #{memberId}
+		ORDER BY review_date DESC
+	</select>
+	
+	<!-- 게시글 댓글 관련 쿼리 -->
+	<select id="reviewReplyList" resultMap="reply">
+		SELECT *
+		FROM review_reply
+		WHERE review_no = #{review_no}
+		AND depth = 0
+		ORDER BY write_group DESC, order_no ASC
+		LIMIT #{s}, #{e}
+	</select>
+	
+	<!-- 해당 게시글의 전체 댓글 수 조회 -->
+	<select id="getReviewRepCount" resultType="int">
+		SELECT count(*)
+		FROM review_reply
+		WHERE review_no = #{review_no}
+	</select>
+	
+	<!-- 대댓글 목록 조회 -->
+	<select id="reviewReplyChildren" resultMap="reply">
+	    SELECT *
+	    FROM review_reply
+	    WHERE review_no = #{review_no} 
+	      AND depth > 0
+	    ORDER BY write_group DESC, order_no DESC
+	</select>
+	
+	<!-- 부모 댓글 정보 조회 -->
+	<select id="getParentReply" resultMap="reply">
+		SELECT *
+		FROM review_reply
+		WHERE reply_no = #{parent_reply_no}
+	</select>
+	
+	<!-- 해당 그룹 내 최대 order_no 조회 -->
+	<select id="getMaxOrderNo" resultType="int">
+		SELECT NVL(MAX(order_no), 0)
+		FROM review_reply
+		WHERE write_group = #{write_group}
+	</select>
+	
+	<!-- 특정 부모 댓글에 달린 대댓글 목록 조회 -->
+	<select id="getRepliesByParent" resultMap="reply">
+		SELECT *
+		FROM review_reply
+		WHERE parent_reply_no = #{parent_reply_no}
+		ORDER BY order_no ASC
+	</select>
+	
+	<!-- review_no을 통해 reply_no을 가져오는 쿼리 -->
+	<select id="getReplyNoByReviewNo" resultType="int">
+		SELECT reply_no
+		FROM review_reply
+		WHERE review_no = #{review_no}
+	</select>
+	
+	<!-- 대댓글 리스트 조회 쿼리 -->
+	<select id="getRepliesByReviewNo" resultMap="reply">
+		SELECT *
+		FROM review_reply
+		WHERE reply_no = #{reply_no}
+		AND parent_reply_no IS NOT NULL
+		ORDER BY order_no
+	</select>
+	
+	<!-- 대댓글 갯수 가져오는 쿼리 -->
+	<select id="getReplyCountByReviewNo" resultType="int">
+		SELECT count(*)
+		FROM review_reply
+		WHERE reply_no = #{reply_no}
+		AND parent_reply_no IS NOT NULL
+	</select>
+	
+	<!-- 대댓글 존재 여부 확인 -->
+	<select id="hasReplies" resultType="int">
+		SELECT count(*)
+		FROM review_reply
+		WHERE parent_reply_no = #{reply_no}
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="addReviewReply" parameterType="ReviewRepDTO">
+		<selectKey keyProperty="reply_no" resultType="int" order="AFTER">
+	        SELECT LAST_INSERT_ID()
+	    </selectKey>
+	
+		INSERT INTO review_reply (parent_reply_no, write_group, depth, order_no, review_no, memberId, id, content)
+		VALUES (#{parent_reply_no}, #{write_group}, #{depth}, #{order_no}, #{review_no}, #{memberId}, #{id}, #{content})
+	</insert>
+	
+	<!-- write_group 업데이트 -->
+	<update id="updateWriteGroup">
+	    UPDATE review_reply
+	    SET write_group = #{reply_no}
+	    WHERE reply_no = #{reply_no}
+	</update>
+	
+	<!-- 댓글 수정 -->
+	<update id="modifyReviewReply">
+		UPDATE review_reply
+		SET content = #{content}
+		WHERE reply_no = #{reply_no}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteReviewReply">
+		DELETE FROM review_reply
+		WHERE reply_no = #{reply_no}
+	</delete>
+</mapper>
