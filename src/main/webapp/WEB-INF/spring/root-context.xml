@@ -15,6 +15,7 @@
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 	   <property name="driverClassName" value="org.mariadb.jdbc.Driver" />
 	   <property name="jdbcUrl" value="jdbc:mariadb://localhost:3306/movie_db" />
+	   <property name="jdbcUrl" value="jdbc:mariadb://localhost:3306/movie_db?useUnicode=true&amp;characterEncoding=utf8mb4&amp;connectionCollation=utf8mb4_general_ci" />
 	   <property name="username" value="root" />
 	   <property name="password" value="csb1234" />
 	</bean>
