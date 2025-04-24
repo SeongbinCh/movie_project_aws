@@ -65,7 +65,6 @@ public class MemberController {
 	// 로그인 확인 메서드
 	@PostMapping("login_chk")
 	public String login_chk(@RequestParam String id, @RequestParam String pwd,
-							@RequestParam( required = false, defaultValue = "off" ) String autoLogin,
 							HttpSession session,
 							RedirectAttributes rs,
 							HttpServletResponse res) {
@@ -80,7 +79,7 @@ public class MemberController {
 			session.setAttribute("isAdmin", true);
 			session.setAttribute("isUser", false);
 			session.setAttribute(LoginSession.LOGIN, id);
-			return "redirect:successLogin?id=" + id + "&autoLogin=" + autoLogin;
+			return "redirect:successLogin?id=" + id;
 		}
 		
 		int result = ms.login_chk( id, pwd );
@@ -98,7 +97,6 @@ public class MemberController {
 		session.setAttribute( LoginSession.LOGIN, id );
 		
 		rs.addAttribute( "id", id );
-		rs.addAttribute( "autoLogin", autoLogin );
 		
 		return "redirect:successLogin";
 	}

@@ -294,9 +294,9 @@ public class BookingController {
 			params.add("quantity", "1");
 			params.add("total_amount", String.valueOf(totalPrice));
 			params.add("tax_free_amount", "0");
-			params.add("approval_url", "http://localhost:8080/movie/booking/kakaoSuccess");
-			params.add("cancel_url", "http://localhost:8080/movie/booking/kakaoCancel");
-			params.add("fail_url", "http://localhost:8080/movie/booking/kakaoFail");
+			params.add("approval_url", "http://13.211.159.43:8080/movie/booking/kakaoSuccess");
+			params.add("cancel_url", "http://13.211.159.43:8080/movie/booking/kakaoCancel");
+			params.add("fail_url", "http://13.211.159.43:8080/movie/booking/kakaoFail");
 			
 			HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
             ResponseEntity<Map> response = restTemplate.exchange(kakaoPayHost + "/v1/payment/ready", HttpMethod.POST, request, Map.class);
